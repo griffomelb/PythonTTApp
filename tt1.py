@@ -236,12 +236,29 @@ class TableTennisApp:
 
     def update_history_display(self):
         self.history_text.config(state=tk.NORMAL)
-        self.history_text.delete(1.0, tk.END)
-        for i, point in enumerate(self.point_history[-5:], 1):
-            self.history_text.insert(tk.END, f"Point {i}: {point['point_winner']} won. "
-                                             f"Serve: {point['serve_type']}, "
-                                             f"Opening: {point['opening_shot_type']} "
-                                             f"by {point['opening_shot_player']}\n")
+        self.history_text.delete("1.0", tk.END)
+
+        if self.point_history:
+            for i, point in enumerate(self.point_history, start=1):
+                serve_type = point["serve_type"]
+                opening_shot_type = point["opening_shot_type"]
+                opening_shot_player = point["opening_shot_player"]
+                point_winner = point["point_winner"]
+                player_score_before = point["player_score_before"]
+                opponent_score_before = point["opponent_score_before"]
+                server = point["server"]
+
+                self.history_text.insert(tk.END, f"Point {i}: ")
+                self.history_text.insert(tk.END, f"Server: {server}, ")
+                self.history_text.insert(tk.END, f"Serve type: {serve_type}, ")
+                self.history_text.insert(tk.END, f"Opening shot type: {opening_shot_type}, ")
+                self.history_text.insert(tk.END, f"Opening shot player: {opening_shot_player}, ")
+                self.history_text.insert(tk.END, f"Point winner: {point_winner}, ")
+                self.history_text.insert(tk.END, f"Player score before: {player_score_before}, ")
+                self.history_text.insert(tk.END, f"Opponent score before: {opponent_score_before}\n")
+        else:
+            self.history_text.insert(tk.END, "No points recorded yet.")
+        
         self.history_text.config(state=tk.DISABLED)
 
     def update_previous_games(self):
