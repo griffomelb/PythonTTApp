@@ -115,7 +115,7 @@ class TableTennisApp:
 
         # Point History
         ttk.Label(self.history_frame, text="Point History:").grid(row=0, column=0, sticky=tk.W)
-        self.history_text = tk.Text(self.history_frame, height=5, width=50)
+        self.history_text = tk.Text(self.history_frame, height=20, width=150)
         self.history_text.grid(row=1, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
         self.history_text.insert(tk.END, "No points recorded yet.")
         self.history_text.config(state=tk.DISABLED)
@@ -170,7 +170,8 @@ class TableTennisApp:
             "opening_shot_player": self.opening_shot_player.get(),
             "point_winner": self.point_winner.get(),
             "player_score_before": self.player_score,
-            "opponent_score_before": self.opponent_score
+            "opponent_score_before": self.opponent_score,
+            "server": self.first_server.get()  # Record the current server
         }
         self.point_history.append(point_data)
 
@@ -191,7 +192,10 @@ class TableTennisApp:
         self.opening_shot_type.set(point_data["opening_shot_type"])
         self.opening_shot_player.set(point_data["opening_shot_player"])
         self.point_winner.set(point_data["point_winner"])
-        
+
+        # Update the server for the next point
+        self.first_server.set("Player" if self.first_server.get() == "Opponent" else "Opponent")
+
         # Clear input fields
         # Note: We do not need to clear the input fields since the defaults are already set
 
