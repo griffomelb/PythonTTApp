@@ -186,11 +186,14 @@ class TableTennisApp:
         # Update point history display
         self.update_history_display()
 
+        # Set the options for the next point as the default values
+        self.serve_type.set(point_data["serve_type"])
+        self.opening_shot_type.set(point_data["opening_shot_type"])
+        self.opening_shot_player.set(point_data["opening_shot_player"])
+        self.point_winner.set(point_data["point_winner"])
+        
         # Clear input fields
-        self.serve_type.set("")
-        self.opening_shot_type.set("")
-        self.opening_shot_player.set("Player")
-        self.point_winner.set("")
+        # Note: We do not need to clear the input fields since the defaults are already set
 
         self.current_game["player_score"] = self.player_score
         self.current_game["opponent_score"] = self.opponent_score
