@@ -167,12 +167,23 @@ class TableTennisApp:
         self.update_input_values()
 
     def update_input_values(self):
-        self.server.set("Player")
+        # Determine the current server based on the point history
+        if len(self.point_history) % 2 == 0:
+            self.server.set(self.first_server.get())
+        else:
+            # Check if the score is 10-10
+            if self.player_score.get() == self.opponent_score.get() == 10:
+                previous_server = self.point_history[-1]["server"]
+                self.server.set(self.player_name.get() if previous_server == self.opponent_name.get() else self.opponent_name.get())
+            else:
+                self.server.set(self.player_name.get() if self.server.get() == self.opponent_name.get() else self.opponent_name.get())
+
+        # Set the default values for other input fields
         self.serve_type.set("Pendulum")
         self.opening_shot_type.set("Forehand loop")
         self.opening_shot_player.set("Player")
         self.point_winner.set("Player")
-        
+            
     def end_game(self):
         if self.current_game:
             self.games.append(self.current_game)
