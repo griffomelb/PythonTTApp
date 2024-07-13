@@ -45,7 +45,24 @@ class TableTennisApp:
         self.games = []
         self.current_game = None
 
+        # set default options on game start
+
+        self.server_options = ["Player", "Opponent"]
+        self.serve_type_options = ["Pendulum", "Backhand", "Tomohawk", "Punch", "Reverse pendulum", "Fault"]
+        self.opening_shot_options = ["Forehand loop", "Backhand loop", "Forehand flick", "Backhand flick", "Forehand loop error", 
+                                     "Backhand loop error", "Forehand flick error", "Backhand flick error", "Push Error"]
+        self.point_winner_options = ["Player", "Opponent"]
+
+        self.server = tk.StringVar(value="Player")
+        self.serve_type = tk.StringVar(value="Pendulum")
+        self.opening_shot_type = tk.StringVar(value="Forehand loop")
+        self.opening_shot_player = tk.StringVar(value="Player")
+        self.point_winner = tk.StringVar(value="Player")
+
         self.create_widgets()
+
+        # Set the initial values
+        self.update_input_values()
 
     def create_widgets(self):
         # Player Information
@@ -146,6 +163,16 @@ class TableTennisApp:
         self.update_history_display()
         messagebox.showinfo("New Game", f"New game started. {self.first_server.get()} serves first.")
 
+        # Set the default values
+        self.update_input_values()
+
+    def update_input_values(self):
+        self.server.set("Player")
+        self.serve_type.set("Pendulum")
+        self.opening_shot_type.set("Forehand loop")
+        self.opening_shot_player.set("Player")
+        self.point_winner.set("Player")
+        
     def end_game(self):
         if self.current_game:
             self.games.append(self.current_game)
