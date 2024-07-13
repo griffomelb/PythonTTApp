@@ -167,24 +167,6 @@ class TableTennisApp:
         self.update_input_values()
 
     def update_input_values(self):
-        # Determine the current server based on the point history and score
-        if self.player_score >= 10 and self.opponent_score >= 10:
-            # Swap servers each point
-            if len(self.point_history) % 2 == 0:
-                self.server.set(self.player_name.get() if self.server.get() == self.opponent_name.get() else self.opponent_name.get())
-        else:
-            # Swap servers every two points
-            if len(self.point_history) % 2 == 0:
-                self.server.set(self.first_server.get())
-            else:
-                self.server.set(self.player_name.get() if self.server.get() == self.opponent_name.get() else self.opponent_name.get())
-
-        # Set the default values for other input fields
-        self.serve_type.set("Pendulum")
-        self.opening_shot_type.set("Forehand loop")
-        self.opening_shot_player.set("Player")
-        self.point_winner.set("Player")
-        
         # Determine the current server based on the point history
         if len(self.point_history) % 2 == 0:
             self.server.set(self.first_server.get())
@@ -209,48 +191,62 @@ class TableTennisApp:
             self.update_previous_games()
 
     def submit_point(self):
-        # Get the point winner and update the respective score
-        point_winner = self.point_winner.get()
+        if not self.current_game:
+            messagebox.showerror("Error", "Please start a new game before submitting points.")
+            return
 
-        if point_winner == "Player":
+        # Validate input
+        if not all([self.serve_type.get(), self.opening_shot_type.get(), 
+                    self.opening_shot_player.get(), self.point_winner.get()]):
+            messagebox.showerror("Error", "Please fill in all fields before submitting.")
+            return
+
+        # Record point data
+        point_data = {
+            "serve_type": self.serve_type.get(),
+            "opening_shot_type": self.opening_shot_type.get(),
+            "opening_shot_player": self.opening_shot_player.get(),
+            "point_winner": self.point_winner.get(),
+            "player_score_before": self.player_score,
+            "opponent_score_before": self.opponent_score,
+            "server": self.first_server.get()  # Record the current server
+        }
+        self.point_history.append(point_data)
+
+        # Update score
+        if self.point_winner.get() == "Player":
             self.player_score += 1
         else:
             self.opponent_score += 1
 
-        # Check if the score is 10-10 or more
-        if self.player_score >= 10 and self.opponent_score >= 10:
-            # Swap servers each point
-            if len(self.point_history) % 2 == 0:
-                self.server.set("Player")
-            else:
-                self.server.set("Opponent")
-        else:
-            # Swap servers every two points
-            if len(self.point_history) % 2 == 0:
-                self.server.set("Player")
-            elif len(self.point_history) % 2 == 1:
-                self.server.set("Opponent")
-
-        # Update the current score label
+        # Update score display
         self.current_score_label.config(text=f"{self.player_score} - {self.opponent_score}")
 
-        # Create a string representing the point and add it to the history
-        point = f"Server: {self.server.get()}, Winner: {point_winner}"
-        self.point_history.append(point)
+        # Update point history display
+        self.update_history_display()
 
-        # Update the point history display
-        self.history_text.config(state=tk.NORMAL)
-        self.history_text.delete(1.0, tk.END)
-        for point in self.point_history:
-            self.history_text.insert(tk.END, point + "\n")
-        self.history_text.config(state=tk.DISABLED)
+        # Set the options for the next point as the default values
+        self.serve_type.set(point_data["serve_type"])
+        self.opening_shot_type.set(point_data["opening_shot_type"])
+        self.opening_shot_player.set(point_data["opening_shot_player"])
+        self.point_winner.set(point_data["point_winner"])
 
-        # Clear the radio button selections
-        self.serve_type.set(None)
-        self.opening_shot_type.set(None)
-        self.opening_shot_player.set("Player")
-        self.point_winner.set(None)
-        
+        # Update the server for the next point
+        self.first_server.set("Player" if self.first_server.get() == "Opponent" else "Opponent")
+
+        # Clear input fields
+        # Note: We do not need to clear the input fields since the defaults are already set
+
+        self.current_game["player_score"] = self.player_score
+        self.current_game["opponent_score"] = self.opponent_score
+        self.current_game["points"] = self.point_history
+
+        # Check if the game has ended
+        if (self.player_score >= 11 or self.opponent_score >= 11) and abs(self.player_score - self.opponent_score) >= 2:
+            winner = self.current_game['player'] if self.player_score > self.opponent_score else self.current_game['opponent']
+            messagebox.showinfo("Game Over", f"{winner} wins!")
+            self.end_game()
+
     def undo_point(self):
         if not self.current_game or not self.point_history:
             messagebox.showerror("Error", "No point to undo.")
